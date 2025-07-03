@@ -77,9 +77,12 @@ public class ApiV1PostCommentController {
     public RsData<PostCommentDto> write(
             @PathVariable int postId,
             @RequestBody @Valid PostCommentWriteReqBody reqBody,
-            @NotBlank @Size(min = 2, max = 30) String username
+            @NotBlank @Size(min = 2, max = 30) String username,
+            @NotBlank @Size(min = 2, max = 30) String password
     ) {
         Member author = memberService.findByUsername(username).get();
+        if(!author.getPassword().equals(password)) throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+
         Post post = postService.findById(postId).get();
         PostComment postComment = postService.writeComment(author, post, reqBody.content);
 
