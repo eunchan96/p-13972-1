@@ -1,6 +1,8 @@
 package com.back.global.globalExceptionHandler;
 
+import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -8,14 +10,16 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.util.Comparator;
 import java.util.NoSuchElementException;
 import java.util.stream.Collectors;
 
-@ControllerAdvice
+import static org.springframework.http.HttpStatus.BAD_REQUEST;
+
+@RestControllerAdvice
 @RequiredArgsConstructor
 public class GlobalExceptionHandler {
     @ExceptionHandler(NoSuchElementException.class)
@@ -40,7 +44,7 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("\n"));
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(BAD_REQUEST)
                 .body(new RsData<>(
                         "400-1",
                         message
@@ -50,7 +54,7 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(HttpMessageNotReadableException.class)
     public ResponseEntity<RsData<Void>> handle(HttpMessageNotReadableException ex) {
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(BAD_REQUEST)
                 .body(new RsData<>(
                         "400-1",
                         "요청 본문이 올바르지 않습니다."
@@ -74,10 +78,18 @@ public class GlobalExceptionHandler {
                 .collect(Collectors.joining("\n"));
 
         return ResponseEntity
-                .status(HttpStatus.BAD_REQUEST)
+                .status(BAD_REQUEST)
                 .body(new RsData<>(
                         "400-1",
                         message
                 ));
+    }
+
+    @ExceptionHandler(ServiceException.class)
+    public RsData<Void> handle(ServiceException ex, HttpServletResponse reponse) {
+        RsData<Void> rsData = ex.getRsData();
+        reponse.setStatus(rsData.statusCode());
+
+        return rsData;
     }
 }
