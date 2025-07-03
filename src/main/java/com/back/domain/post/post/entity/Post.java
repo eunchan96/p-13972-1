@@ -29,6 +29,7 @@ public class Post extends BaseEntity {
     private List<PostComment> comments = new ArrayList<>();
 
     public Post(Member author, String title, String content) {
+        this.author = author;
         this.title = title;
         this.content = content;
     }
