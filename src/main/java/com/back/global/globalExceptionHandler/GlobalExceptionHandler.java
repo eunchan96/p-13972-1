@@ -1,6 +1,7 @@
 package com.back.global.globalExceptionHandler;
 
 import com.back.global.rsData.RsData;
+import jakarta.validation.ConstraintViolationException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -53,6 +54,30 @@ public class GlobalExceptionHandler {
                 .body(new RsData<>(
                         "400-1",
                         "요청 본문이 올바르지 않습니다."
+                ));
+    }
+
+    @ExceptionHandler(ConstraintViolationException.class)
+    public ResponseEntity<RsData<Void>> handle(ConstraintViolationException ex) {
+        String message = ex.getConstraintViolations()
+                .stream()
+                .map(violation -> {
+                    String field = violation.getPropertyPath().toString().split("\\.", 2)[1];
+                    String[] messsgeTemplateBits = violation.getMessageTemplate()
+                            .replace(".message}", "")
+                            .split("\\.");
+                    String code = messsgeTemplateBits[messsgeTemplateBits.length - 1];
+                    String _message = violation.getMessage();
+                    return field + "-" + code + "-" + _message;
+                })
+                .sorted(Comparator.comparing(String::toString))
+                .collect(Collectors.joining("\n"));
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(new RsData<>(
+                        "400-1",
+                        message
                 ));
     }
 }

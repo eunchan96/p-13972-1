@@ -14,11 +14,13 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
 import lombok.RequiredArgsConstructor;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
 @RestController
+@Validated
 @RequestMapping("/api/v1/posts/{postId}/comments")
 @RequiredArgsConstructor
 @Tag(name = "ApiV1PostCommentController", description = "API 댓글 컨트롤러")
@@ -74,9 +76,10 @@ public class ApiV1PostCommentController {
     @Operation(summary = "작성")
     public RsData<PostCommentDto> write(
             @PathVariable int postId,
-            @RequestBody @Valid PostCommentWriteReqBody reqBody
+            @RequestBody @Valid PostCommentWriteReqBody reqBody,
+            @NotBlank @Size(min = 2, max = 30) String username
     ) {
-        Member author = memberService.findByUsername("user1").get();
+        Member author = memberService.findByUsername(username).get();
         Post post = postService.findById(postId).get();
         PostComment postComment = postService.writeComment(author, post, reqBody.content);
 
