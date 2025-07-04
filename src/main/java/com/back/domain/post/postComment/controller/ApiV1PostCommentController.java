@@ -78,11 +78,9 @@ public class ApiV1PostCommentController {
     public RsData<PostCommentDto> write(
             @PathVariable int postId,
             @RequestBody @Valid PostCommentWriteReqBody reqBody,
-            @NotBlank @Size(min = 2, max = 30) String username,
-            @NotBlank @Size(min = 2, max = 30) String password
+            @NotBlank @Size(min = 30, max = 50) String apiKey
     ) {
-        Member author = memberService.findByUsername(username).orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 회원입니다."));
-        if(!author.getPassword().equals(password)) throw new ServiceException("401-1", "비밀번호가 일치하지 않습니다.");
+        Member author = memberService.findByApiKey(apiKey).orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 ApiKey 입니다."));
 
         Post post = postService.findById(postId).get();
         PostComment postComment = postService.writeComment(author, post, reqBody.content);

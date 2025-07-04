@@ -1,5 +1,7 @@
 package com.back.domain.post.postComment.controller;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
 import com.back.domain.post.postComment.entity.PostComment;
@@ -30,6 +32,8 @@ public class ApiV1PostCommentControllerTest {
 
     @Autowired
     private PostService postService;
+    @Autowired
+    private MemberService memberService;
 
     @Test
     @DisplayName("댓글 단건조회")
@@ -140,10 +144,12 @@ public class ApiV1PostCommentControllerTest {
     @DisplayName("댓글 작성")
     public void t5() throws Exception {
         int postId = 1;
+        Member author = memberService.findByUsername("user1").get();
+        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
-                        post("/api/v1/posts/%d/comments".formatted(postId))
+                        post("/api/v1/posts/%d/comments?apiKey=%s".formatted(postId, apiKey))
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
