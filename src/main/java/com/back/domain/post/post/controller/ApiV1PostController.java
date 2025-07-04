@@ -81,8 +81,9 @@ public class ApiV1PostController {
     @Operation(summary = "작성")
     public RsData<PostWriteResBody> write(
             @Valid @RequestBody PostWriteReqBody reqBody,
-            @NotBlank @Size(min = 30, max = 50) String apiKey
-            ) {
+            @NotBlank @Size(min = 30, max = 50) @RequestHeader("Authorization") String authorization
+    ) {
+        String apiKey = authorization.replace("Bearer ", "");
         Member author = memberService.findByApiKey(apiKey).orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 ApiKey 입니다."));
 
         Post post = postService.write(author, reqBody.title, reqBody.content);
