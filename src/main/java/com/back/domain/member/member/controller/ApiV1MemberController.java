@@ -3,7 +3,6 @@ package com.back.domain.member.member.controller;
 import com.back.domain.member.member.dto.MemberDto;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
-import com.back.global.exception.ServiceException;
 import com.back.global.rsData.RsData;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -42,11 +41,6 @@ public class ApiV1MemberController {
     @Operation(summary = "회원 가입")
     @Transactional
     public RsData<MemberDto> join(@Valid @RequestBody MemberJoinReqBody reqBody) {
-        memberService.findByUsername(reqBody.username)
-                .ifPresent(member -> {
-                    throw new ServiceException("409-1", "이미 존재하는 아이디입니다.");
-                });
-
         Member member = memberService.join(reqBody.username, reqBody.password, reqBody.nickname);
 
         return new RsData<>(
