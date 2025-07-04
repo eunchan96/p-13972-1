@@ -152,7 +152,6 @@ public class ApiV1PostCommentControllerTest {
     public void t5() throws Exception {
         int postId = 1;
         Post post = postService.findById(postId).get();
-        PostComment postComment = post.getComments().getLast();
         Member author = post.getAuthor();
         String apiKey = author.getApiKey();
 
@@ -167,6 +166,8 @@ public class ApiV1PostCommentControllerTest {
                                         }
                                         """)
                 ).andDo(print());
+
+        PostComment postComment = post.getComments().getLast();
 
         resultActions
                 .andExpect(handler().handlerType(ApiV1PostCommentController.class))

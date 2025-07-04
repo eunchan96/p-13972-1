@@ -16,7 +16,7 @@ public class Rq {
     public Member getActor() {
         String headerAuthorization = req.getHeader("Authorization");
 
-        if (headerAuthorization == null || !headerAuthorization.isBlank())
+        if (headerAuthorization == null || headerAuthorization.isBlank())
             throw new ServiceException("401-1", "Authorization 헤더가 존재하지 않습니다.");
 
         if(!headerAuthorization.startsWith("Bearer "))
