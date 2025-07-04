@@ -116,11 +116,15 @@ public class ApiV1PostCommentControllerTest {
     public void t4() throws Exception {
         int postId = 1;
         int id = 1;
+        Post post = postService.findById(postId).get();
+        Member author = post.getAuthor();
+        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/%d/comments/%d".formatted(postId, id))
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "content": "댓글 new"
@@ -135,7 +139,6 @@ public class ApiV1PostCommentControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 댓글이 수정되었습니다.".formatted(id)));
 
-        Post post = postService.findById(postId).get();
         PostComment postComment = post.findCommentById(id).get();
         assertThat(postComment.getContent()).isEqualTo("댓글 new");
     }
