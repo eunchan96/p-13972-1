@@ -45,8 +45,8 @@ public class ApiV1PostControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
                                             "title": "제목",
@@ -85,8 +85,8 @@ public class ApiV1PostControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/" + id)
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
                                             "title": "제목 new",
@@ -210,8 +210,8 @@ public class ApiV1PostControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
                                             "title": "",
@@ -240,8 +240,8 @@ public class ApiV1PostControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
                                             "title": "제목",
@@ -276,8 +276,8 @@ public class ApiV1PostControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content(wrongJsonBody)
                 )
                 .andDo(print());

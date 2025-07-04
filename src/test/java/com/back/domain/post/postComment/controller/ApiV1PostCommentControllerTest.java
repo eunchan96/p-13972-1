@@ -127,8 +127,8 @@ public class ApiV1PostCommentControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/%d/comments/%d".formatted(postId, id))
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
                                             "content": "댓글 new"
@@ -157,8 +157,8 @@ public class ApiV1PostCommentControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts/%d/comments".formatted(postId))
-                                .contentType(MediaType.APPLICATION_JSON)
                                 .header("Authorization", "Bearer " + apiKey)
+                                .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
                                             "content": "댓글"
