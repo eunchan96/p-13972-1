@@ -49,4 +49,42 @@ public class ApiV1MemberController {
                 new MemberDto(member)
         );
     }
+
+
+    record MemberLoginReqBody(
+            @NotBlank(message = "아이디는 필수 입력입니다.")
+            @Size(min = 2, max = 30, message = "아이디는 2자 이상 30자 이하로 입력해주세요.")
+            String username,
+
+            @NotBlank(message = "비밀번호는 필수 입력입니다.")
+            @Size(min = 2, max = 30, message = "비밀번호는 2자 이상 30자 이하로 입력해주세요.")
+            String password
+    ){};
+
+    record MemberLoginResBody(
+            @NotBlank
+            MemberDto item,
+            @NotBlank
+            String apiKey
+    ){};
+
+    @PostMapping("/login")
+    @Operation(summary = "로그인")
+    public RsData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody reqBody) {
+        Member member = memberService.findByUsername(reqBody.username)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 아이디입니다."));
+
+        if (!member.getPassword().equals(reqBody.password)) {
+            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+        }
+
+        return new RsData<>(
+                "200-1",
+                "%s님 환영합니다.".formatted(member.getName()),
+                new MemberLoginResBody(
+                        new MemberDto(member),
+                        member.getApiKey()
+                )
+        );
+    }
 }
