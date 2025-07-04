@@ -110,10 +110,14 @@ public class ApiV1PostControllerTest {
     @DisplayName("글 삭제")
     public void t3() throws Exception {
         int id = 1;
+        Post post = postService.findById(id).get();
+        Member author = post.getAuthor();
+        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/" + id)
+                                .header("Authorization", "Bearer " + apiKey)
                 ).andDo(print());
 
         resultActions
@@ -200,10 +204,14 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 작성 - without title")
     public void t7() throws Exception {
+        Member author = memberService.findByUsername("user1").get();
+        String apiKey = author.getApiKey();
+
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "title": "",
@@ -226,10 +234,14 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 작성 - without content")
     public void t8() throws Exception {
+        Member author = memberService.findByUsername("user1").get();
+        String apiKey = author.getApiKey();
+
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "title": "제목",
@@ -252,6 +264,8 @@ public class ApiV1PostControllerTest {
     @Test
     @DisplayName("글 작성 - with wrong json syntax")
     void t9() throws Exception {
+        Member author = memberService.findByUsername("user1").get();
+        String apiKey = author.getApiKey();
 
         String wrongJsonBody = """
                 {
@@ -263,6 +277,7 @@ public class ApiV1PostControllerTest {
                 .perform(
                         post("/api/v1/posts")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content(wrongJsonBody)
                 )
                 .andDo(print());

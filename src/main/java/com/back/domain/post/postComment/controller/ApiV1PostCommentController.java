@@ -52,9 +52,19 @@ public class ApiV1PostCommentController {
     @DeleteMapping("/{id}")
     @Transactional
     @Operation(summary = "삭제")
-    public RsData<PostCommentDto> delete(@PathVariable int postId, @PathVariable int id) {
+    public RsData<PostCommentDto> delete(
+            @PathVariable int postId, @PathVariable int id,
+            @NotBlank @Size(min = 30, max = 50) @RequestHeader("Authorization") String authorization
+    ) {
+        String apiKey = authorization.replace("Bearer ", "");
+        Member author = memberService.findByApiKey(apiKey).orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 ApiKey 입니다."));
+
         Post post = postService.findById(postId).get();
         PostComment postComment = post.findCommentById(id).get();
+
+        if (!postComment.getAuthor().equals(author)) {
+            throw new ServiceException("403-1", "댓글 삭제 권한이 없습니다.");
+        }
 
         postService.deleteComment(post, postComment);
 
@@ -118,7 +128,7 @@ public class ApiV1PostCommentController {
         PostComment postComment = post.findCommentById(id).get();
 
         if (!postComment.getAuthor().equals(author)) {
-            throw new ServiceException("403-1", "권한이 없습니다.");
+            throw new ServiceException("403-1", "댓글 수정 권한이 없습니다.");
         }
 
         postService.modifyComment(postComment, reqBody.content);

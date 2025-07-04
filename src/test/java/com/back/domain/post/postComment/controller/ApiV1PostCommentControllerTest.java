@@ -97,10 +97,14 @@ public class ApiV1PostCommentControllerTest {
     public void t3() throws Exception {
         int postId = 1;
         int id = 1;
+        Post post = postService.findById(postId).get();
+        Member author = post.getAuthor();
+        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/%d/comments/%d".formatted(postId, id))
+                                .header("Authorization", "Bearer " + apiKey)
                 ).andDo(print());
 
         resultActions
