@@ -111,8 +111,20 @@ public class ApiV1PostController {
     @PutMapping("/{id}")
     @Transactional
     @Operation(summary = "수정")
-    public RsData<Void> modify(@PathVariable int id, @Valid @RequestBody PostModifyReqBody reqBody) {
+    public RsData<Void> modify(
+            @PathVariable int id,
+            @Valid @RequestBody PostModifyReqBody reqBody,
+            @NotBlank @Size(min = 30, max = 50) @RequestHeader("Authorization") String authorization
+    ) {
+        String apiKey = authorization.replace("Bearer ", "");
+        Member author = memberService.findByApiKey(apiKey).orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 ApiKey 입니다."));
+
         Post post = postService.findById(id).get();
+
+        if (!author.equals(post.getAuthor())) {
+            throw new ServiceException("403-1", "권한이 없습니다.");
+        }
+
         postService.modify(post, reqBody.title, reqBody.content);
 
         return new RsData<>(

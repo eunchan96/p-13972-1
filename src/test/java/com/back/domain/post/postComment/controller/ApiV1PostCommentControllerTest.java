@@ -149,8 +149,9 @@ public class ApiV1PostCommentControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                        post("/api/v1/posts/%d/comments?apiKey=%s".formatted(postId, apiKey))
+                        post("/api/v1/posts/%d/comments".formatted(postId))
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "content": "댓글"

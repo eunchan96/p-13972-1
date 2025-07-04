@@ -44,8 +44,9 @@ public class ApiV1PostControllerTest {
 
         ResultActions resultActions = mvc
                 .perform(
-                        post("/api/v1/posts?apiKey=" + apiKey)
+                        post("/api/v1/posts")
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "title": "제목",
@@ -77,11 +78,15 @@ public class ApiV1PostControllerTest {
     @DisplayName("글 수정")
     public void t2() throws Exception {
         int id = 1;
+        Post post = postService.findById(id).get();
+        Member author = post.getAuthor();
+        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/" + id)
                                 .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + apiKey)
                                 .content("""
                                         {
                                             "title": "제목 new",
@@ -97,7 +102,6 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 글이 수정되었습니다.".formatted(id)));
 
-        Post post = postService.findById(id).get();
         assertThat(post.getTitle()).isEqualTo("제목 new");
         assertThat(post.getContent()).isEqualTo("내용 new");
     }
