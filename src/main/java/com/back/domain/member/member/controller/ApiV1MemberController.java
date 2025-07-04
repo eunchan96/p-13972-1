@@ -73,10 +73,10 @@ public class ApiV1MemberController {
     @Operation(summary = "로그인")
     public RsData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody reqBody) {
         Member member = memberService.findByUsername(reqBody.username)
-                .orElseThrow(() -> new ServiceException("404-1", "존재하지 않는 아이디입니다."));
+                .orElseThrow(() -> new ServiceException("401-1", "존재하지 않는 아이디입니다."));
 
         if (!member.getPassword().equals(reqBody.password)) {
-            throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
+            throw new ServiceException("401-2", "비밀번호가 일치하지 않습니다.");
         }
 
         return new RsData<>(
