@@ -9,6 +9,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.Arrays;
+
 @Component
 @RequiredArgsConstructor
 public class Rq {
@@ -18,17 +20,24 @@ public class Rq {
 
     public Member getActor() {
         String headerAuthorization = req.getHeader("Authorization");
+        String apiKey;
 
-        if (headerAuthorization == null || headerAuthorization.isBlank())
-            throw new ServiceException("401-1", "로그인 후 이용해주세요.");
+        if (headerAuthorization != null && !headerAuthorization.isBlank()) {
+            if (!headerAuthorization.startsWith("Bearer "))
+                throw new ServiceException("401-2", "Authorization 헤더가 Bearer 형식이 아닙니다.");
 
-        if(!headerAuthorization.startsWith("Bearer "))
-            throw new ServiceException("401-2", "Authorization 헤더가 Bearer 형식이 아닙니다.");
-
-        String apiKey = headerAuthorization.replace("Bearer ", "");
+            apiKey = headerAuthorization.substring("Bearer ".length());
+        } else {
+            apiKey = req.getCookies() == null ? "" :
+                    Arrays.stream(req.getCookies())
+                            .filter(cookie -> "apiKey".equals(cookie.getName()))
+                            .map(Cookie::getValue)
+                            .findFirst()
+                            .orElse("");
+        }
 
         return memberService.findByApiKey(apiKey)
-                .orElseThrow(() -> new ServiceException("401-3", "API Key가 유효하지 않습니다."));
+                .orElseThrow(() -> new ServiceException("401-1", "로그인 후 이용해주세요."));
     }
 
     public void setCookie(String name, String value) {
