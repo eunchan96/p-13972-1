@@ -20,10 +20,10 @@ public class Rq {
     private final HttpServletResponse resp;
 
     public Member getActor() {
-        String headerAuthorization = req.getHeader("Authorization");
+        String headerAuthorization = getHeader("Authorization", "");
         String apiKey;
 
-        if (headerAuthorization != null && !headerAuthorization.isBlank()) {
+        if (!headerAuthorization.isBlank()) {
             if (!headerAuthorization.startsWith("Bearer "))
                 throw new ServiceException("401-2", "Authorization 헤더가 Bearer 형식이 아닙니다.");
 
@@ -36,7 +36,13 @@ public class Rq {
                 .orElseThrow(() -> new ServiceException("401-1", "로그인 후 이용해주세요."));
     }
 
-    public String getCookieValue(String name, String defaultValue) {
+    private String getHeader(String name, String defaultValue) {
+        return Optional.ofNullable(req.getHeader(name))
+                .filter(value -> !value.isBlank())
+                .orElse(defaultValue);
+    }
+
+    private String getCookieValue(String name, String defaultValue) {
         return Optional.ofNullable(req.getCookies())
                 .flatMap(cookies -> Arrays.stream(cookies)
                         .filter(cookie -> cookie.getName().equals(name))
