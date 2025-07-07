@@ -314,7 +314,7 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 쓰기 - Bearer 형식이 아닌 Authorization Header")
+    @DisplayName("글 쓰기 - with wrong Authorization Header")
     public void t11() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
@@ -338,7 +338,7 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 쓰기 - 로그인 하지 않은 경우")
+    @DisplayName("글 쓰기 - with wrong API Key")
     public void t12() throws Exception {
         ResultActions resultActions = mvc
                 .perform(
@@ -362,7 +362,7 @@ public class ApiV1PostControllerTest {
     }
 
     @Test
-    @DisplayName("글 수정 - 본인 글이 아닌 글 수정 시도")
+    @DisplayName("글 수정 - without permission")
     public void t13() throws Exception {
         int id = 1;
         int errorId = 2;
@@ -388,11 +388,11 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().methodName("modify"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.resultCode").value("403-1"))
-                .andExpect(jsonPath("$.msg").value("글 수정 권한이 없습니다."));
+                .andExpect(jsonPath("$.msg").value("%d번 글 수정 권한이 없습니다.".formatted(id)));
     }
 
     @Test
-    @DisplayName("글 삭제 - 본인 글이 아닌 글 삭제 시도")
+    @DisplayName("글 삭제 - without permission")
     public void t14() throws Exception {
         int id = 1;
         int errorId = 2;
@@ -411,6 +411,6 @@ public class ApiV1PostControllerTest {
                 .andExpect(handler().methodName("delete"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.resultCode").value("403-1"))
-                .andExpect(jsonPath("$.msg").value("글 삭제 권한이 없습니다."));
+                .andExpect(jsonPath("$.msg").value("%d번 글 삭제 권한이 없습니다.".formatted(id)));
     }
 }
