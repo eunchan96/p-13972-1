@@ -28,16 +28,20 @@ public class Rq {
 
             apiKey = headerAuthorization.substring("Bearer ".length());
         } else {
-            apiKey = req.getCookies() == null ? "" :
-                    Arrays.stream(req.getCookies())
-                            .filter(cookie -> "apiKey".equals(cookie.getName()))
-                            .map(Cookie::getValue)
-                            .findFirst()
-                            .orElse("");
+            apiKey = getCookieValue("apiKey");
         }
 
         return memberService.findByApiKey(apiKey)
                 .orElseThrow(() -> new ServiceException("401-1", "로그인 후 이용해주세요."));
+    }
+
+    public String getCookieValue(String name) {
+        return req.getCookies() == null ? "" :
+                Arrays.stream(req.getCookies())
+                        .filter(cookie -> name.equals(cookie.getName()))
+                        .map(Cookie::getValue)
+                        .findFirst()
+                        .orElse("");
     }
 
     public void setCookie(String name, String value) {
