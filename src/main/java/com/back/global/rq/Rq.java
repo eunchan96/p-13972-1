@@ -3,7 +3,9 @@ package com.back.global.rq;
 import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.global.exception.ServiceException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,6 +14,7 @@ import org.springframework.stereotype.Component;
 public class Rq {
     private final MemberService memberService;
     private final HttpServletRequest req;
+    private final HttpServletResponse resp;
 
     public Member getActor() {
         String headerAuthorization = req.getHeader("Authorization");
@@ -26,5 +29,9 @@ public class Rq {
 
         return memberService.findByApiKey(apiKey)
                 .orElseThrow(() -> new ServiceException("401-3", "API Key가 유효하지 않습니다."));
+    }
+
+    public void setCookie(String name, String value) {
+        resp.addCookie(new Cookie(name, value));
     }
 }
