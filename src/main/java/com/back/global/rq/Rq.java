@@ -68,7 +68,7 @@ public class Rq {
         if (isAccessTokenExists && !isAccessTokenValid) {
             String actorAccessToken = memberService.genAccessToken(member);
             setCookie("accessToken", actorAccessToken);
-            setHeader("Authorization", actorAccessToken);
+            setHeader("Authorization", "Bearer " + apiKey + " " + actorAccessToken);
         }
 
         return member;
