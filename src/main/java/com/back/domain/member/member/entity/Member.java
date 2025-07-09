@@ -26,9 +26,10 @@ public class Member  extends BaseEntity {
         this.apiKey = UUID.randomUUID().toString();
     }
 
-    public Member(int id, String username) {
+    public Member(int id, String username, String name) {
         this.id = id;
         this.username = username;
+        this.nickname = name;
     }
 
     public String getName() {

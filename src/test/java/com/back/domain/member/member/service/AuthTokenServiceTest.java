@@ -112,7 +112,8 @@ public class AuthTokenServiceTest {
                 .containsAllEntriesOf(
                         Map.of(
                                 "id", member.getId(),
-                                "username", member.getUsername()
+                                "username", member.getUsername(),
+                                "name", member.getName()
                         )
                 );
     }
