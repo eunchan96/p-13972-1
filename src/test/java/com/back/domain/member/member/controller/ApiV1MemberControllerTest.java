@@ -221,11 +221,7 @@ public class ApiV1MemberControllerTest {
 
                     String headerAuthorization = result.getResponse().getHeader("Authorization");
                     assertThat(headerAuthorization).isNotBlank();
-
-                    String[] headerAuthorizationParts = headerAuthorization.split(" ", 3);
-                    assertThat(headerAuthorizationParts[0]).isEqualTo("Bearer");
-                    assertThat(headerAuthorizationParts[1]).isEqualTo(actorApiKey);
-                    assertThat(headerAuthorizationParts[2]).isEqualTo(accessTokenCookie.getValue());
+                    assertThat(headerAuthorization).isEqualTo(accessTokenCookie.getValue());
                 }
         );
     }
