@@ -1,5 +1,7 @@
 package com.back.global.security;
 
+import com.back.domain.member.member.entity.Member;
+import com.back.domain.member.member.service.MemberService;
 import com.back.global.exception.ServiceException;
 import com.back.global.rq.Rq;
 import jakarta.servlet.FilterChain;
@@ -13,12 +15,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.List;
+import java.util.Map;
 
 @Component
 @RequiredArgsConstructor
 @Log
 public class CustomAuthenticationFilter extends OncePerRequestFilter {
     private final Rq rq;
+    private final MemberService memberService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, IOException {
@@ -31,7 +35,7 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
         }
 
         // 인증, 인가가 필요없는 API 요청이라면 패스
-        if (List.of("/api/v1/members/login", "/api/v1/members/logout", "/api/v1/members/join").contains(request.getRequestURI())) {
+        if (List.of("/api/v1/members/login", "/api/v1/members/logout", "/api/v1/members").contains(request.getRequestURI())) {
             filterChain.doFilter(request, response);
             return;
         }
@@ -56,6 +60,40 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
 
         logger.debug("apiKey : " + apiKey);
         logger.debug("accessToken : " + accessToken);
+
+        Member member = null;
+        boolean isApiKeyExists = !apiKey.isBlank();
+        boolean isAccessTokenExists = !accessToken.isBlank();
+        boolean isAccessTokenValid = false;
+
+        if (!isApiKeyExists && !isAccessTokenExists) {
+            filterChain.doFilter(request, response);
+            return;
+        }
+
+        if (isAccessTokenExists) {
+            Map<String, Object> payload = memberService.payload(accessToken);
+
+            if (payload != null) {
+                int id = (int) payload.get("id");
+                String username = (String) payload.get("username");
+                String name = (String) payload.get("name");
+                member = new Member(id, username, name);
+
+                isAccessTokenValid = true;
+            }
+        }
+
+        if (member == null) {
+            member = memberService.findByApiKey(apiKey)
+                    .orElseThrow(() -> new ServiceException("401-3", "API 키가 유효하지 않습니다."));
+        }
+
+        if (isAccessTokenExists && !isAccessTokenValid) {
+            String actorAccessToken = memberService.genAccessToken(member);
+            rq.setCookie("accessToken", actorAccessToken);
+            rq.setHeader("Authorization", actorAccessToken);
+        }
 
         filterChain.doFilter(request, response);
     }
