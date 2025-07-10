@@ -26,7 +26,7 @@ public class SecurityConfig {
                                 .requestMatchers(HttpMethod.POST, "/api/*/members").permitAll()
                                 .requestMatchers("/api/*/adm/**").hasRole("ADMIN")
                                 .requestMatchers("/api/*/**").authenticated()
-                                .anyRequest().authenticated()
+                                .anyRequest().permitAll()
                 )
                 .headers(
                         headers -> headers
