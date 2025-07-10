@@ -32,7 +32,40 @@ public class SecurityConfig {
                 ).csrf(
                         AbstractHttpConfigurer::disable
                 )
-                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(customAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                .exceptionHandling(
+                        exceptionHandling -> exceptionHandling
+                                .authenticationEntryPoint(
+                                        (request, response, authException) -> {
+                                            response.setContentType("application/json;charset=UTF-8");
+
+                                            response.setStatus(401);
+                                            response.getWriter().write(
+                                                    """
+                                                            {
+                                                                 "resultCode": "401-1",
+                                                                 "msg": "로그인 후 이용해주세요."
+                                                            }
+                                                            """
+                                            );
+                                        }
+                                )
+                                .accessDeniedHandler(
+                                        (request, response, accessDeniedException) -> {
+                                            response.setContentType("application/json;charset=UTF-8");
+
+                                            response.setStatus(403);
+                                            response.getWriter().write(
+                                                    """
+                                                            {
+                                                                 "resultCode": "403-1",
+                                                                 "msg": "관리자만 접근할 수 있습니다."
+                                                            }
+                                                            """
+                                            );
+                                        }
+                                )
+                );
 
         return http.build();
     }
