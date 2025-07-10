@@ -40,7 +40,7 @@ public class Member  extends BaseEntity {
         this.apiKey = name;
     }
 
-    public boolean isAdm() {
+    public boolean isAdmin() {
         if(username.equals("admin")) return true;
         if(username.equals("system")) return true;
         return false;

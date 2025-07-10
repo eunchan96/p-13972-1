@@ -29,7 +29,7 @@ public class ApiV1AdmMemberController {
     @Operation(summary = "다건 조회")
     public List<MemberWithUsernameDto> getItems() {
         Member actor = rq.getActor();
-        if (!actor.isAdm()) {
+        if (!actor.isAdmin()) {
             throw new ServiceException("403-1", "관리자만 접근할 수 있습니다.");
         }
 
@@ -44,7 +44,7 @@ public class ApiV1AdmMemberController {
     @Operation(summary = "단건 조회")
     public MemberWithUsernameDto getItem(@PathVariable int id) {
         Member actor = rq.getActor();
-        if (!actor.isAdm()) {
+        if (!actor.isAdmin()) {
             throw new ServiceException("403-1", "관리자만 접근할 수 있습니다.");
         }
 

@@ -27,7 +27,7 @@ public class ApiV1AdmPostController {
     @GetMapping("/count")
     public AdmPostCountResBody count() {
         Member actor = rq.getActor();
-        if (!actor.isAdm()) {
+        if (!actor.isAdmin()) {
             throw new ServiceException("403-1", "관리자만 접근할 수 있습니다.");
         }
 
