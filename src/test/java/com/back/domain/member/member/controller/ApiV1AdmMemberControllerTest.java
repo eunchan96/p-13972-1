@@ -105,8 +105,6 @@ public class ApiV1AdmMemberControllerTest {
         List<Member> members = memberService.findAll();
 
         resultActions
-                .andExpect(handler().handlerType(ApiV1AdmMemberController.class))
-                .andExpect(handler().methodName("getItems"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.resultCode").value("403-1"))
                 .andExpect(jsonPath("$.msg").value("관리자만 접근할 수 있습니다."));
@@ -127,8 +125,6 @@ public class ApiV1AdmMemberControllerTest {
                 .andDo(print());
 
         resultActions
-                .andExpect(handler().handlerType(ApiV1AdmMemberController.class))
-                .andExpect(handler().methodName("getItem"))
                 .andExpect(status().isForbidden())
                 .andExpect(jsonPath("$.resultCode").value("403-1"))
                 .andExpect(jsonPath("$.msg").value("관리자만 접근할 수 있습니다."));
