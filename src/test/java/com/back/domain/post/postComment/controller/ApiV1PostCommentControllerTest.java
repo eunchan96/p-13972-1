@@ -1,6 +1,5 @@
 package com.back.domain.post.postComment.controller;
 
-import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.domain.post.post.entity.Post;
 import com.back.domain.post.post.service.PostService;
@@ -12,6 +11,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -94,17 +94,14 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("댓글 삭제")
+    @WithUserDetails("user1")
     public void t3() throws Exception {
         int postId = 1;
         int id = 1;
-        Post post = postService.findById(postId).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/%d/comments/%d".formatted(postId, id))
-                                .header("Authorization", "Bearer " + apiKey)
                 ).andDo(print());
 
         resultActions
@@ -117,18 +114,14 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("댓글 수정")
+    @WithUserDetails("user1")
     public void t4() throws Exception {
         int postId = 1;
         int id = 1;
-        Post post = postService.findById(postId).get();
-        PostComment postComment = post.findCommentById(id).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/%d/comments/%d".formatted(postId, id))
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -144,21 +137,21 @@ public class ApiV1PostCommentControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 댓글이 수정되었습니다.".formatted(id)));
 
+        Post post = postService.findById(postId).get();
+        PostComment postComment = post.findCommentById(id).get();
+
         assertThat(postComment.getContent()).isEqualTo("댓글 new");
     }
 
     @Test
     @DisplayName("댓글 작성")
+    @WithUserDetails("user1")
     public void t5() throws Exception {
         int postId = 1;
-        Post post = postService.findById(postId).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts/%d/comments".formatted(postId))
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -167,6 +160,7 @@ public class ApiV1PostCommentControllerTest {
                                         """)
                 ).andDo(print());
 
+        Post post = postService.findById(postId).get();
         PostComment postComment = post.getComments().getLast();
 
         resultActions
@@ -186,18 +180,14 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("댓글 수정 - without permission")
+    @WithUserDetails("user2")   // 원래 작성자는 user1
     public void t6() throws Exception {
         int postId = 1;
         int id = 1;
-        int errorId = 2;
-        Post post = postService.findById(errorId).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/%d/comments/%d".formatted(postId, id))
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -217,18 +207,14 @@ public class ApiV1PostCommentControllerTest {
 
     @Test
     @DisplayName("댓글 삭제 - without permission")
+    @WithUserDetails("user2")   // 원래 작성자는 user1
     public void t7() throws Exception {
         int postId = 1;
         int id = 1;
-        int errorId = 2;
-        Post post = postService.findById(errorId).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/%d/comments/%d".formatted(postId, id))
-                                .header("Authorization", "Bearer " + apiKey)
                 ).andDo(print());
 
         resultActions

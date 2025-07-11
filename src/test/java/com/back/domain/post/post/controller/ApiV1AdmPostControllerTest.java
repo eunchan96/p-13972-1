@@ -1,6 +1,5 @@
 package com.back.domain.post.post.controller;
 
-import com.back.domain.member.member.entity.Member;
 import com.back.domain.member.member.service.MemberService;
 import com.back.domain.post.post.service.PostService;
 import org.junit.jupiter.api.DisplayName;
@@ -8,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -32,14 +32,11 @@ public class ApiV1AdmPostControllerTest {
 
     @Test
     @DisplayName("count")
+    @WithUserDetails("admin")
     void t1() throws Exception {
-        Member actor = memberService.findByUsername("admin").get();
-        String actorApiKey = actor.getApiKey();
-
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/posts/count")
-                                .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print());
 
@@ -52,14 +49,11 @@ public class ApiV1AdmPostControllerTest {
 
     @Test
     @DisplayName("count - without permission")
+    @WithUserDetails("user1")
     void t2() throws Exception {
-        Member actor = memberService.findByUsername("user1").get();
-        String actorApiKey = actor.getApiKey();
-
         ResultActions resultActions = mvc
                 .perform(
                         get("/api/v1/adm/posts/count")
-                                .header("Authorization", "Bearer " + actorApiKey)
                 )
                 .andDo(print());
 

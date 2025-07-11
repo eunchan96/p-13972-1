@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
@@ -39,14 +40,11 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 쓰기")
+    @WithUserDetails("user1")
     public void t1() throws Exception {
-        Member author = memberService.findByUsername("user1").get();
-        String apiKey = author.getApiKey();
-
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -77,16 +75,13 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정")
+    @WithUserDetails("user1")
     public void t2() throws Exception {
         int id = 1;
-        Post post = postService.findById(id).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/" + id)
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -103,22 +98,21 @@ public class ApiV1PostControllerTest {
                 .andExpect(jsonPath("$.resultCode").value("200-1"))
                 .andExpect(jsonPath("$.msg").value("%d번 글이 수정되었습니다.".formatted(id)));
 
+        Post post = postService.findById(id).get();
+
         assertThat(post.getTitle()).isEqualTo("제목 new");
         assertThat(post.getContent()).isEqualTo("내용 new");
     }
 
     @Test
     @DisplayName("글 삭제")
+    @WithUserDetails("user1")
     public void t3() throws Exception {
         int id = 1;
-        Post post = postService.findById(id).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/" + id)
-                                .header("Authorization", "Bearer " + apiKey)
                 ).andDo(print());
 
         resultActions
@@ -204,14 +198,11 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 작성 - without title")
+    @WithUserDetails("user1")
     public void t7() throws Exception {
-        Member author = memberService.findByUsername("user1").get();
-        String apiKey = author.getApiKey();
-
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -234,14 +225,11 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 작성 - without content")
+    @WithUserDetails("user1")
     public void t8() throws Exception {
-        Member author = memberService.findByUsername("user1").get();
-        String apiKey = author.getApiKey();
-
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -264,10 +252,8 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 작성 - with wrong json syntax")
+    @WithUserDetails("user1")
     void t9() throws Exception {
-        Member author = memberService.findByUsername("user1").get();
-        String apiKey = author.getApiKey();
-
         String wrongJsonBody = """
                 {
                     "title": 제목",
@@ -277,7 +263,6 @@ public class ApiV1PostControllerTest {
         ResultActions resultActions = mvc
                 .perform(
                         post("/api/v1/posts")
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content(wrongJsonBody)
                 )
@@ -358,17 +343,13 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 수정 - without permission")
+    @WithUserDetails("user2")   // 원래 작성자는 user1
     public void t13() throws Exception {
         int id = 1;
-        int errorId = 2;
-        Post post = postService.findById(errorId).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         put("/api/v1/posts/" + id)
-                                .header("Authorization", "Bearer " + apiKey)
                                 .contentType(MediaType.APPLICATION_JSON)
                                 .content("""
                                         {
@@ -388,17 +369,13 @@ public class ApiV1PostControllerTest {
 
     @Test
     @DisplayName("글 삭제 - without permission")
+    @WithUserDetails("user2")   // 원래 작성자는 user1
     public void t14() throws Exception {
         int id = 1;
-        int errorId = 2;
-        Post post = postService.findById(errorId).get();
-        Member author = post.getAuthor();
-        String apiKey = author.getApiKey();
 
         ResultActions resultActions = mvc
                 .perform(
                         delete("/api/v1/posts/" + id)
-                                .header("Authorization", "Bearer " + apiKey)
                 ).andDo(print());
 
         resultActions
