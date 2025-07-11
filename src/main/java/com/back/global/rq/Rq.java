@@ -6,7 +6,6 @@ import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
@@ -60,16 +59,17 @@ public class Rq {
     public void setCookie(String name, String value) {
         if (value == null) value = "";
 
-        ResponseCookie cookie = ResponseCookie.from(name, value)
-                .path("/")
-                .domain("localhost")
-                .sameSite("Strict")
-                .secure(true)
-                .httpOnly(true)
-                .maxAge(value.isBlank() ? 0 : 60 * 60 * 24 * 365 * 10)  // 10년
-                .build();
+        Cookie cookie = new Cookie(name, value);
+        cookie.setPath("/");
+        cookie.setHttpOnly(true);
+        cookie.setDomain("localhost");
+        cookie.setSecure(true);
+        cookie.setAttribute("SameSite", "Strict");
 
-        resp.addHeader("Set-Cookie", cookie.toString());
+        if (value.isBlank()) cookie.setMaxAge(0);
+        else cookie.setMaxAge(60 * 60 * 24 * 365);
+
+        resp.addCookie(cookie);
     }
 
     public void deleteCookie(String name) {
