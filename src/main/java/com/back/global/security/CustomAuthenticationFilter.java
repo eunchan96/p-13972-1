@@ -144,8 +144,6 @@ public class CustomAuthenticationFilter extends OncePerRequestFilter {
                 .getContext()
                 .setAuthentication(authentication);
 
-        rq.setActor(member);
-
         filterChain.doFilter(request, response);
     }
 }
