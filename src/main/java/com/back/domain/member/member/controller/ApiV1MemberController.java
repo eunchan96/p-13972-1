@@ -74,6 +74,7 @@ public class ApiV1MemberController {
 
     @PostMapping("/login")
     @Operation(summary = "로그인")
+    @Transactional(readOnly = true)
     public RsData<MemberLoginResBody> login(@Valid @RequestBody MemberLoginReqBody reqBody) {
         Member member = memberService.findByUsername(reqBody.username)
                 .orElseThrow(() -> new ServiceException("401-1", "존재하지 않는 아이디입니다."));
@@ -108,7 +109,8 @@ public class ApiV1MemberController {
     }
 
     @GetMapping("/me")
-    @Operation(summary = "회원 정보")
+    @Transactional(readOnly = true)
+    @Operation(summary = "내 정보")
     public MemberWithUsernameDto me() {
         Member actor = memberService.findById(rq.getActor().getId()).get();
 
