@@ -70,7 +70,7 @@ public class Ut {
     }
 
     public static class json {
-        private static final ObjectMapper objectMapper = new ObjectMapper();
+        public static ObjectMapper objectMapper;
 
         public static String toString(Object obj) {
             return toString(obj, null);
