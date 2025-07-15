@@ -1,9 +1,6 @@
 package com.back.domain.post.post.controller;
 
-import com.back.domain.member.member.entity.Member;
 import com.back.domain.post.post.service.PostService;
-import com.back.global.exception.ServiceException;
-import com.back.global.rq.Rq;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -20,7 +17,6 @@ import org.springframework.web.bind.annotation.RestController;
 @SecurityRequirement(name = "bearerAuth")
 public class ApiV1AdmPostController {
     private final PostService postService;
-    private final Rq rq;
 
     record AdmPostCountResBody(
             Long all
@@ -30,11 +26,6 @@ public class ApiV1AdmPostController {
     @Transactional(readOnly = true)
     @Operation(summary = "전체 글 개수")
     public AdmPostCountResBody count() {
-        Member actor = rq.getActor();
-        if (!actor.isAdmin()) {
-            throw new ServiceException("403-1", "관리자만 접근할 수 있습니다.");
-        }
-
         return new AdmPostCountResBody(
                 postService.count()
         );
